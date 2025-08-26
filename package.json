@@ -1,0 +1,18 @@
+{
+  "name": "blog-api-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=@app/api",
+    "dev:web": "npm run dev --workspace=@app/web",
+    "dev:all": "concurrently -k -p name -c green,cyan \"npm:dev:api\" \"npm:dev:web\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.8.2"
+  }
+}
