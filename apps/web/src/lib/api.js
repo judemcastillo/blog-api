@@ -6,13 +6,17 @@ export function setToken(token) {
 }
 
 function authHeaders() {
-  const t = localStorage.getItem("token");
-  return t ? { Authorization: `Bearer ${t}` } : {};
+  const authorizationToken = localStorage.getItem("token");
+  return authorizationToken ? { Authorization: `Bearer ${authorizationToken}` } : {};
 }
 
 export async function api(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...authHeaders(), ...(options.headers||{}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(),
+      ...(options.headers || {})
+    },
     ...options,
   });
   if (!res.ok) throw new Error((await res.json()).message || res.statusText);
