@@ -32,6 +32,15 @@ router.get("/", async (req, res, next) => {
 				createdAt: true,
 				updatedAt: true,
 				publishedAt: true,
+				author: {
+					// <-- add this
+					select: {
+						id: true,
+						username: true,
+						email: true,
+						role: true, // optional
+					},
+				},
 			},
 		});
 		res.status(200).json(posts);
@@ -67,7 +76,20 @@ router.get("/:id", async (req, res, next) => {
 	try {
 		const post = await prisma.post.findUnique({
 			where: { id },
+			include: {
+				author: {
+					select: { id: true, username: true, email: true, role: true },
+				},
+				comments: {
+					include: {
+						// Comment has `user` relation, not `author`
+						user: { select: { id: true, username: true } },
+					},
+					orderBy: { createdAt: "desc" },
+				},
+			},
 		});
+
 		if (!post) {
 			return res.status(404).json({ message: "Post not found" });
 		}

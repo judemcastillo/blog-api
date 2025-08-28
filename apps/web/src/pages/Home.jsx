@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {api} from "../lib/api.js";
+import { api } from "../lib/api.js";
 import Header from "../sections/Header.jsx";
+import { isAuthed, getRole } from "../lib/auth.js";
 
 function Home() {
 	const [posts, setPosts] = useState([]);
@@ -16,25 +17,46 @@ function Home() {
 		};
 		fetchPosts();
 	}, []);
+	const authed = isAuthed();
+	const role = getRole();
 	return (
 		<>
-		<Header />
+			<Header />
 			<div className="min-w-screen bg-gray-100 min-h-screen ">
-				<div className="max-w-3xl  mx-auto p-4 font-sans ">
-					<h1 className="text-2xl  font-bold mb-4">Posts</h1>
-					<ul className="space-y-2">
+				<div className="max-w-3xl  mx-auto p-4 font-sans space-y-2 ">
+					<div className="flex flex-row justify-between items-center">
+						<h1 className="text-2xl  font-bold ">Posts</h1>
+						{authed && (
+							<>
+								<Link
+									to="/posts/new"
+									className="text-sm px-2 py-1 rounded hover:bg-gray-400 bg-gray-700 text-amber-50"
+								>
+									+ Create Post
+								</Link>
+							</>
+						)}
+					</div>
+					<ul className="space-y-2 pt-3">
 						{posts.map((p) => (
-							<li key={p.id} className="border-none p-3 rounded space-y-2 bg-white shadow-lg">
+							<li
+								key={p.id}
+								className="border-none p-3 rounded space-y-2 bg-white shadow-lg hover:scale-103 duration-50"
+							>
 								<Link
 									to={`/posts/${p.id}`}
 									className="font-semibold hover:underline"
 								>
 									{p.title}
 								</Link>
+								{(role === "ADMIN" || role ==="AUTHOR" || role==="USER") && (
+									<div className="text-sm text-gray-500">
+										<span className="font-semibold">Author: </span>{p.author.username||p.author.email}
+									</div>
+								)}
 								<div className="text-sm text-gray-500">
 									{new Date(p.createdAt).toLocaleString()}
 								</div>
-								<div>{p.content}</div>
 							</li>
 						))}
 					</ul>

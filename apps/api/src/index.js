@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import jwt from "jsonwebtoken";
+
 import { PrismaClient } from "@prisma/client";
 
 import authRouter from "./routes/auth.js";

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 export function issueJWT(user) {
 	const payload = {
 		sub: user.id,
+		email: user.email,
 		role: user.role,
 	};
 

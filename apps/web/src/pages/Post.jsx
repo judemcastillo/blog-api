@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { api } from "../lib/api.js";
 import Header from "../sections/Header.jsx";
+import { getRole } from "../lib/auth.js";
 
 export default function Post() {
 	const { id } = useParams();
@@ -43,6 +44,7 @@ export default function Post() {
 		setComments((prev) => [...prev, submitComment]);
 		setForm({ content: "", authorName: "", authorEmail: "" });
 	}
+	const role = getRole();
 
 	if (!post) return <div className="p-4">Loading…</div>;
 	return (
@@ -51,7 +53,19 @@ export default function Post() {
 			<div className="max-w-3xl mx-auto p-4 space-y-6">
 				<div>
 					<h1 className="text-3xl font-bold">{post.title}</h1>
+					{(role === "ADMIN" || role === "AUTHOR") && (
+						<div className="mt-4">
+							<p>By: {post.author.username || post.author.email}</p>
+						</div>
+					)}
 					<p className="whitespace-pre-line mt-3 py-10">{post.content}</p>
+					{(role === "ADMIN" || role === "AUTHOR") && (
+						<div className="mt-4">
+							<button className="bg-red-500 text-white px-4 py-2 rounded">
+								Delete Post
+							</button>
+						</div>
+					)}
 				</div>
 				<hr />
 				<section>
