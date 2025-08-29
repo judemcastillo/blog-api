@@ -28,8 +28,7 @@ export default function NewPost() {
 		);
 	}
 
-	async function handleSubmit(e) {
-		e.preventDefault();
+	async function handleSubmit(publish = true) {
 		setErr("");
 		setLoading(true);
 
@@ -39,7 +38,7 @@ export default function NewPost() {
 				body: JSON.stringify({
 					title: form.title,
 					content: form.content,
-					published: true,
+					published: publish,
 				}),
 			});
 
@@ -52,7 +51,7 @@ export default function NewPost() {
 		}
 	}
 
-	const input = "border p-2 rounded w-full";
+	const input = "border p-2 rounded w-full bg-white";
 
 	return (
 		<div>
@@ -60,7 +59,13 @@ export default function NewPost() {
 			<div className="min-w-screen bg-gray-100 min-h-screen">
 				<div className="max-w-md mx-auto p-4 space-y-3 ">
 					<h1 className="text-2xl font-bold">Create New Post</h1>
-					<form onSubmit={handleSubmit} className="space-y-3">
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							handleSubmit(true);
+						}}
+						className="space-y-3"
+					>
 						<div>
 							<label className="block mb-1">Title</label>
 							<input
@@ -85,9 +90,17 @@ export default function NewPost() {
 						<button
 							type="submit"
 							disabled={loading}
-							className="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700 disabled:opacity-50"
+							className="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700 disabled:opacity-50 cursor-pointer"
 						>
-							{loading ? "Posting..." : "Create Post"}
+							{loading ? "Publishing..." : "Publish"}
+						</button>
+						<button
+							type="button"
+							disabled={loading}
+							onClick={() => handleSubmit(false)}
+							className="flex-1 border border-gray-400 p-2 rounded hover:bg-gray-500 disabled:opacity-50 cursor-pointer hover:text-gray-200"
+						>
+							{loading ? "Saving..." : "Save as Draft"}
 						</button>
 						{err && <div className="text-red-600 text-sm">{err}</div>}
 					</form>

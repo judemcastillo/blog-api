@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 
 import authRouter from "./routes/auth.js";
 import postsRouter from "./routes/posts.js";
+import adminRouter from "./routes/admin.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,6 +60,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 // --- routes
 app.use("/api/auth", authRouter);
 app.use("/api/posts", maybeAuth, postsRouter);
+app.use("/api/admin", adminRouter);
 
 // --- error handler
 app.use((err, _req, res, _next) => {

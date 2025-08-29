@@ -23,7 +23,7 @@ function Home() {
 		<>
 			<Header />
 			<div className="min-w-screen bg-gray-100 min-h-screen ">
-				<div className="max-w-3xl  mx-auto p-4 font-sans space-y-2 ">
+				<div className="max-w-4xl  mx-auto p-4 font-sans space-y-2 w-full ">
 					<div className="flex flex-row justify-between items-center">
 						<h1 className="text-2xl  font-bold ">Posts</h1>
 						{authed && (
@@ -49,9 +49,13 @@ function Home() {
 								>
 									{p.title}
 								</Link>
-								{(role === "ADMIN" || role ==="AUTHOR" || role==="USER") && (
+								{!p.published && (
+									<span className="text-sm text-gray-500"> (Draft)</span>
+								)}
+								{(role === "ADMIN" || role === "AUTHOR" || role === "USER") && (
 									<div className="text-sm text-gray-500">
-										<span className="font-semibold">Author: </span>{p.author.username||p.author.email}
+										<span className="font-semibold">Author: </span>
+										{p.author.username || p.author.email}
 									</div>
 								)}
 								<div className="text-sm text-gray-500">

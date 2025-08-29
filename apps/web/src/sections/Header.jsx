@@ -18,7 +18,7 @@ export default function Header() {
 	console.log("payload", getUser());
 	return (
 		<header className="bg-white  shadow-2xl border-none p-3 flex items-center justify-center">
-			<div className="flex gap-4 max-w-4xl justify-between items-center content-between min-w-3xl px-5">
+			<div className="flex gap-4 max-w-4xl justify-between items-center content-between w-full px-5">
 				<div className="max-w-3xl ">
 					<h1 className="text-2xl font-bold">My Blog</h1>
 				</div>

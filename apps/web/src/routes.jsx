@@ -5,6 +5,7 @@ import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import NewPost from "./pages/NewPost";
+import EditPost from "./pages/EditPost";
 
 const routes = [
 	{
@@ -36,6 +37,15 @@ const routes = [
 		element: (
 			<ProtectedRoute>
 				<NewPost />
+			</ProtectedRoute>
+		),
+	},
+
+	{
+		path: "/posts/:id/edit",
+		element: (
+			<ProtectedRoute>
+				<EditPost />
 			</ProtectedRoute>
 		),
 	},

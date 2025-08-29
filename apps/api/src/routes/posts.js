@@ -18,31 +18,45 @@ const requireAccess = (req, res, next) => {
 router.get("/", async (req, res, next) => {
 	const prisma = req.prisma;
 	const { all } = req.query;
+
 	try {
-		const showPublished = all && req.user ? {} : { published: true };
+		const wantAll = all === "1" || all === "true";
+
+		let where = { published: true }; // default: public
+
+		if (req.user) {
+			if (req.user.role === "ADMIN") {
+				// ADMIN: everything, unless you want to gate with wantAll
+				where = wantAll ? {} : {};
+			} else if (req.user.role === "AUTHOR") {
+				// AUTHOR: published OR own drafts
+				where = {
+					OR: [
+						{ published: true },
+						{ AND: [{ published: false }, { authorId: req.user.id }] },
+					],
+				};
+			}
+		}
+
 		const posts = await prisma.post.findMany({
-			where: showPublished,
+			where,
 			orderBy: { createdAt: "desc" },
 			select: {
 				id: true,
 				title: true,
-				content: true,
+				content: true, // consider omitting in list (send excerpt instead)
 				published: true,
 				authorId: true,
 				createdAt: true,
 				updatedAt: true,
 				publishedAt: true,
 				author: {
-					// <-- add this
-					select: {
-						id: true,
-						username: true,
-						email: true,
-						role: true, // optional
-					},
+					select: { id: true, username: true, email: true, role: true },
 				},
 			},
 		});
+
 		res.status(200).json(posts);
 	} catch (err) {
 		next(err);
@@ -107,24 +121,35 @@ router.put("/:id", requireAuth, requireAccess, async (req, res, next) => {
 	const prisma = req.prisma;
 	const id = Number(req.params.id);
 	const { title, content, published } = req.body;
+
 	try {
-		const post = await prisma.post.findUnique({
-			where: { id },
-		});
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" });
+		const post = await prisma.post.findUnique({ where: { id } });
+		if (!post) return res.status(404).json({ message: "Post not found" });
+
+		// Authors can only edit their own posts; admins can edit all
+		if (req.user.role !== "ADMIN" && post.authorId !== req.user.id) {
+			return res.status(403).json({ message: "Forbidden" });
 		}
+
+		const nowPublished = !!published;
+		const newPublishedAt =
+			nowPublished && !post.published
+				? new Date()
+				: !nowPublished
+				? null
+				: post.publishedAt; // keep original when staying published
 
 		const updatedPost = await prisma.post.update({
 			where: { id },
 			data: {
 				title,
 				content,
-				published: !!published,
-				authorId: req.user.id,
-				publishedAt: published ? new Date() : null,
+				published: nowPublished,
+				// do NOT change authorId
+				publishedAt: newPublishedAt,
 			},
 		});
+
 		res.status(200).json(updatedPost);
 	} catch (err) {
 		next(err);
@@ -136,19 +161,16 @@ router.delete("/:id", requireAuth, requireAccess, async (req, res, next) => {
 	const prisma = req.prisma;
 	const id = Number(req.params.id);
 	try {
-		const post = await prisma.post.findUnique({
-			where: { id },
-		});
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" });
-		}
-		if (!post.published && !req.user) {
-			return res.status(403).json({ message: "Forbidden" });
-		}
-		await prisma.post.delete({
-			where: { id },
-		});
-		res.status(204).send().json(`Post ${id} deleted`);
+		const post = await prisma.post.findUnique({ where: { id } });
+		if (!post) return res.status(404).json({ message: "Post not found" });
+
+		// Only owner or admin can delete
+		const isOwner =
+			req.user.role !== "ADMIN" ? post.authorId === req.user.id : true;
+		if (!isOwner) return res.status(403).json({ message: "Forbidden" });
+
+		await prisma.post.delete({ where: { id } });
+		return res.status(200).json({ ok: true, deletedId: id });
 	} catch (err) {
 		next(err);
 	}
