@@ -20,9 +20,13 @@ app.use(
 			"http://localhost:5173",
 			"https://blog-project-green-three.vercel.app/",
 		],
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
 	})
 );
+
+app.options("*", cors());
 
 // Attach prisma
 app.use((req, res, next) => {
