@@ -3,7 +3,9 @@ import express from "express";
 import cors from "cors";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+
 import { PrismaClient } from "@prisma/client";
+
 import authRouter from "./routes/auth.js";
 import postsRouter from "./routes/posts.js";
 import adminRouter from "./routes/admin.js";
@@ -12,31 +14,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
-const allowlist = [
-	"http://localhost:5173",
-	// add exact custom domains here later, e.g. "https://myblog.com"
-];
-
-// allow any vercel.app subdomain for your previews
-const vercelRegex = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
-
 app.use(
 	cors({
-		origin(origin, cb) {
-			// allow server-to-server / curl (no Origin) and allowlisted origins
-			if (!origin || allowlist.includes(origin) || vercelRegex.test(origin)) {
-				return cb(null, true);
-			}
-			return cb(new Error("Not allowed by CORS"));
-		},
+		origin: [
+			"http://localhost:5173",
+			"https://blog-project-green-three.vercel.app",
+		],
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
 	})
 );
 
-// handle preflights globally
-app.options("*", cors());
+
 
 // Attach prisma
 app.use((req, res, next) => {
