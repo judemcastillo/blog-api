@@ -14,7 +14,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+	cors({
+		origin: [
+			"http://localhost:5173",
+			"https://blog-project-green-three.vercel.app/",
+		],
+		credentials: true,
+	})
+);
 
 // Attach prisma
 app.use((req, res, next) => {
