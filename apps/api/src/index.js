@@ -18,7 +18,7 @@ app.use(
 	cors({
 		origin: [
 			"http://localhost:5173",
-			"https://blog-project-green-three.vercel.app",
+			"https://blog-project-aq6rzoqbu-judes-projects-de4780e9.vercel.app",
 		],
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
